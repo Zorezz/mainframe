@@ -1,0 +1,20 @@
+package views
+
+import "mainframe/handlers"
+
+templ ZonesView(domains handlers.Zones) {
+    @Base() {
+        <ul>
+            for _, zone := range domains {
+                <a href={ templ.SafeURL("/zones/" + zone.Name) }>{ zone.Name }</a>
+                <br>
+            }
+        </ul>
+    }
+}
+
+templ ZoneView() {
+
+}
+
+

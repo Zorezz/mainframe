@@ -13,8 +13,27 @@ templ ZonesView(domains handlers.Zones) {
     }
 }
 
-templ ZoneView() {
-
+templ ZoneView(records handlers.Zone) {
+    @Base() {
+        <div>
+            <tr>
+                <th>Type</th>
+                <th>Name</th>
+                <th>Value</th>
+                <th>TTL</th>
+            </tr>
+            for _, record := range records.Rrsets {
+                <div hx-target="this" hx-swap="outerHTML" class="inline-block">
+                    <tr>
+                        <th>{record.Records.Type}</th>
+                        <th>{record.Name}</th>
+                        <th>{record.Records.Content}</th>
+                        <th>{record.Records.TTL}</th>
+                    </tr>
+                </div>
+        }
+        </div>
+    }
 }
 
 

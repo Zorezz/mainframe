@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-type Zone struct {
+type Zone []struct {
 	Account          string `json:"account"`
 	APIRectify       bool   `json:"api_rectify"`
 	Dnssec           bool   `json:"dnssec"`
@@ -75,8 +75,8 @@ func GetZones() Zones {
 	return result
 }
 
-func GetZone() {
-	var URL string = "http://localhost:8081/api/v1/servers/localhost/zones/emmatest.se."
+func GetZone(domainName string) Zone {
+	var URL string = "http://localhost:8081/api/v1/servers/localhost/" + domainName
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", URL, nil)
 	req.Header.Set("X-API-Key", KEY)
@@ -88,5 +88,10 @@ func GetZone() {
 	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
 
-	fmt.Println(string(body))
+	var result Zone
+	if err := json.Unmarshal(body, &result); err != nil {
+		fmt.Println("Can not unmarshal JSON")
+	}
+
+	return result
 }

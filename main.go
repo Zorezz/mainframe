@@ -16,6 +16,8 @@ func ZonesHandler(ctx echo.Context) error {
 }
 
 func main() {
+	handlers.GetZone()
+
 	app := echo.New()
 
 	app.GET("/zones", func(c echo.Context) error {

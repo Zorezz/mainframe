@@ -15,8 +15,8 @@ func ZonesHandler(ctx echo.Context) error {
 	return views.ZonesView(domains).Render(ctx.Request().Context(), ctx.Response())
 }
 
-func ZoneHandler(ctx echo.Context, domainName string) error {
-	records := handlers.GetZone(domainName)
+func ZoneHandler(ctx echo.Context) error {
+	records := handlers.GetZone()
 
 	return views.ZoneView(records).Render(ctx.Request().Context(), ctx.Response())
 }
@@ -28,7 +28,7 @@ func main() {
 		return ZonesHandler(c)
 	})
 	app.GET("/zones/:domain", func(c echo.Context) error {
-		return ZoneHandler(c, "/zones/:domain")
+		return ZoneHandler(c)
 	})
 
 	app.Start(":8088")

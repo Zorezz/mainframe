@@ -1,6 +1,10 @@
 package views
 
-import "mainframe/handlers"
+import (
+    "mainframe/handlers"
+    "strconv"
+)
+
 
 templ ZonesView(domains handlers.Zones) {
     @Base() {
@@ -16,22 +20,28 @@ templ ZonesView(domains handlers.Zones) {
 templ ZoneView(records handlers.Zone) {
     @Base() {
         <div>
-            <tr>
-                <th>Type</th>
-                <th>Name</th>
-                <th>Value</th>
-                <th>TTL</th>
-            </tr>
-            for _, record := range records.Rrsets {
-                <div hx-target="this" hx-swap="outerHTML" class="inline-block">
-                    <tr>
-                        <th>{record.Records.Type}</th>
-                        <th>{record.Name}</th>
-                        <th>{record.Records.Content}</th>
-                        <th>{record.Records.TTL}</th>
-                    </tr>
-                </div>
-        }
+            <table>
+                <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Value</th>
+                    <th>TTL</th>
+                    <th>Edit</th>
+                </tr>
+                    for _, record := range records.Rrsets {
+                        for j, content := range record.Records {
+                            <div hx-target="this" hx-swap="outerHTML" class="inline-block">
+                                <tr>
+                                    <th>{record.Type}</th>
+                                    <th>{record.Name}</th>
+                                    <th>{content.Content}</th>
+                                    <th>{strconv.Itoa(record.TTL)}</th>
+                                    <th><button hx-get={  strconv.Itoa(j) + "/edit" }/></th>
+                                </tr>
+                            </div>
+                    }
+                }
+            </table>
         </div>
     }
 }

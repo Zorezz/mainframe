@@ -28,22 +28,53 @@ templ ZoneView(records handlers.Zone) {
                     <th>TTL</th>
                     <th>Edit</th>
                 </tr>
-                    for _, record := range records.Rrsets {
-                        for j, content := range record.Records {
-                            <div hx-target="this" hx-swap="outerHTML" class="inline-block">
+                    for i, record := range records.Rrsets {
+                        for _, content := range record.Records {
+                            <table hx-target="this" hx-swap="outerHTML" class="inline-block">
                                 <tr>
                                     <th>{record.Type}</th>
                                     <th>{record.Name}</th>
                                     <th>{content.Content}</th>
                                     <th>{strconv.Itoa(record.TTL)}</th>
-                                    <th><button hx-get={  strconv.Itoa(j) + "/edit" }/></th>
+                                    <th><button hx-get={ "/zones/emmatest.se./" + strconv.Itoa(i) + "/edit" }/></th>
                                 </tr>
-                            </div>
+                            </table>
+                        }
                     }
-                }
             </table>
         </div>
     }
+}
+
+templ ZoneEdit(records handlers.Zone , id int, domain string) {
+    <form hx-put={ "/zones/" + domain + "/" + strconv.Itoa(id) } hx-target="this" hx-swap="outerHTML">
+        <th>
+            <select name="type">
+                <option value="A">A</option>
+                <option value="AAAA">AAAA</option>
+                <option value="CNAME">CNAME</option>
+                <option value="MX">MX</option>
+                <option value="NS">NS</option>
+                <option value="SOA">SOA</option>
+                <option value="TXT">TXT</option>
+            </select>
+        </th>
+        <th>
+            <input type="text" name="name" value={records.Rrsets[id].Name}>
+        </th>
+        <th>
+            <input type="text" name="content" value={records.Rrsets[id].Records[0].Content}>
+        </th>
+        <th>
+            <input type="text" name="TTL" value={strconv.Itoa(records.Rrsets[id].TTL)}>
+        </th>
+        <th>
+            <button class="btn">Submit</button>
+        </th>
+        <th>
+            <button onClick="window.location.reload()">Cancel</button>
+        </th>
+    </form>
 }
 
 

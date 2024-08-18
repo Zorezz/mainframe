@@ -52,6 +52,23 @@ type Zones []struct {
 	URL            string `json:"url"`
 }
 
+type Content struct {
+	Rrsets `json:"rrsets"`
+}
+
+type Rrsets []struct {
+	Name       string `json:"name"`
+	Type       string `json:"type"`
+	TTL        int    `json:"ttl"`
+	Changetype string `json:"changetype"`
+	Records    `json:"records"`
+}
+
+type Records []struct {
+	Content  string `json:"content"`
+	Disabled bool   `json:"disabled"`
+}
+
 var KEY string = "XPS2jM2XX91DTL7PJTzzGM1vv97hwK" // Insert your own PDNS API Key here this is just a sample for local dev environment
 
 func GetZones() Zones {
@@ -75,8 +92,8 @@ func GetZones() Zones {
 	return result
 }
 
-func GetZone() Zone {
-	var URL string = "http://localhost:8081/api/v1/servers/localhost/zones/emmatest.se."
+func GetZone(domain string) Zone {
+	var URL string = "http://localhost:8081/api/v1/servers/localhost/zones/" + domain
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", URL, nil)
 	req.Header.Set("X-API-Key", KEY)
@@ -88,13 +105,10 @@ func GetZone() Zone {
 	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
 
-	fmt.Println(string(body))
-
 	var result Zone
 	if err := json.Unmarshal(body, &result); err != nil {
 		fmt.Println(err)
 	}
 
 	return result
-
 }

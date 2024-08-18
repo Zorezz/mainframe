@@ -1,9 +1,16 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"github.com/labstack/echo/v4"
+	"io"
 	"mainframe/handlers"
 	"mainframe/views"
+	"net/http"
+	"strconv"
+	"strings"
 )
 
 var URL string = "http://localhost:8081/api/v1/servers/localhost/zones"
@@ -16,9 +23,78 @@ func ZonesHandler(ctx echo.Context) error {
 }
 
 func ZoneHandler(ctx echo.Context) error {
-	records := handlers.GetZone()
+	domain := ctx.Param("domain")
+	records := handlers.GetZone(domain)
 
 	return views.ZoneView(records).Render(ctx.Request().Context(), ctx.Response())
+}
+
+func ZoneEditHandler(ctx echo.Context) error {
+	domain := ctx.Param("domain")
+	id := ctx.Param("id")
+
+	intId, err := strconv.Atoi(id)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	records := handlers.GetZone(domain)
+
+	return views.ZoneEdit(records, intId, domain).Render(ctx.Request().Context(), ctx.Response())
+}
+
+func ZonePutHandler(ctx echo.Context) error {
+	domain := ctx.Param("domain")
+
+	reqBody, err := io.ReadAll(ctx.Request().Body)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	parsedKeys := map[string]string{}
+	for _, pair := range strings.Split(string(reqBody), "&") {
+		kv := strings.Split(pair, "=")
+		parsedKeys[kv[0]] = kv[1]
+	}
+
+	ttlInt, err := strconv.Atoi(parsedKeys["TTL"])
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	content := handlers.Content{
+		handlers.Rrsets{{
+			Name:       parsedKeys["name"],
+			Type:       parsedKeys["type"],
+			TTL:        ttlInt,
+			Changetype: "REPLACE",
+			Records: handlers.Records{{
+				Content:  parsedKeys["content"],
+				Disabled: false,
+			}},
+		}},
+	}
+
+	contentJson, err := json.Marshal(content)
+	if err != nil {
+		fmt.Println("Failed to Marshal JSON")
+	}
+
+	var URL string = "http://localhost:8081/api/v1/servers/localhost/zones/" + domain
+	client := &http.Client{}
+	req, _ := http.NewRequest("PATCH", URL, bytes.NewBuffer(contentJson))
+	fmt.Printf("%s\n", contentJson)
+	req.Header.Set("X-API-Key", KEY)
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer resp.Body.Close()
+	fmt.Println("response Status: ", resp.Status)
+	fmt.Println("response Header: ", resp.Header)
+
+	return nil
 }
 
 func main() {
@@ -29,6 +105,12 @@ func main() {
 	})
 	app.GET("/zones/:domain", func(c echo.Context) error {
 		return ZoneHandler(c)
+	})
+	app.GET("/zones/:domain/:id/edit", func(c echo.Context) error {
+		return ZoneEditHandler(c)
+	})
+	app.PUT("/zones/:domain/:id", func(c echo.Context) error {
+		return ZonePutHandler(c)
 	})
 
 	app.Start(":8088")

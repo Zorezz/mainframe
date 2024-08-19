@@ -17,7 +17,7 @@ templ ZonesView(domains handlers.Zones) {
     }
 }
 
-templ ZoneView(records handlers.Zone) {
+templ ZoneView(records handlers.Zone, domain string) {
     @Base() {
         <div>
             <table>
@@ -36,11 +36,14 @@ templ ZoneView(records handlers.Zone) {
                                     <th>{record.Name}</th>
                                     <th>{content.Content}</th>
                                     <th>{strconv.Itoa(record.TTL)}</th>
-                                    <th><button hx-get={ "/zones/emmatest.se./" + strconv.Itoa(i) + "/edit" }/></th>
+                                    <th><button hx-get={ "/zones/" + domain + "/" + strconv.Itoa(i) + "/edit" }/></th>
                                 </tr>
                             </table>
                         }
                     }
+                        <table>
+                            <button hx-get={ "/zones/" + domain + "/create" }>Add</button>
+                        </table>
             </table>
         </div>
     }

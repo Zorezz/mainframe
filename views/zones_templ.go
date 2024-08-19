@@ -89,7 +89,7 @@ func ZonesView(domains handlers.Zones) templ.Component {
 	})
 }
 
-func ZoneView(records handlers.Zone) templ.Component {
+func ZoneView(records handlers.Zone, domain string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -182,9 +182,9 @@ func ZoneView(records handlers.Zone) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var11 string
-					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs("/zones/emmatest.se./" + strconv.Itoa(i) + "/edit")
+					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs("/zones/" + domain + "/" + strconv.Itoa(i) + "/edit")
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/zones.templ`, Line: 39, Col: 107}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/zones.templ`, Line: 39, Col: 109}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {

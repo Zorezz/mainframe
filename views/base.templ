@@ -3,7 +3,17 @@ package views
 templ Base() {
     <html>
         <head>
-        <script src="https://unpkg.com/htmx.org@2.0.2"></script>
+        <script
+        src="https://unpkg.com/htmx.org@2.0.2">
+
+        function ZoneCreate() {
+           domain = document.getElementById('createZone').value;
+           tempStr = tempStr.concat("/zones/", domain)
+           url = tempStr.concat(tempStr, "/")
+
+           window.location.href =
+        }
+        </script>
         <link rel="stylesheet" type="text/css" href="../static/css/output.css"/>
         </head>
         <body>

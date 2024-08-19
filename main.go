@@ -97,8 +97,18 @@ func ZonePutHandler(ctx echo.Context) error {
 	return nil
 }
 
-func RecordCreateHandler(ctx echo.Context) {
+func RecordCreateHandler(ctx echo.Context) error {
+	domain := ctx.Param("domain")
 
+	return views.RecordCreate(domain).Render(ctx.Request().Context(), ctx.Response())
+}
+
+func ZoneCreateHandler(ctx echo.Context) error {
+	domain := ctx.Param("domain")
+
+	handlers.CreateZoneFunc(domain)
+
+	return nil
 }
 
 func main() {
@@ -116,8 +126,14 @@ func main() {
 	app.PUT("/zones/:domain/:id", func(c echo.Context) error {
 		return ZonePutHandler(c)
 	})
-	app.GET("/zones/:domain/create", func(c echo.Context) error {
+	app.GET("/zones/:domain/record/create", func(c echo.Context) error {
 		return RecordCreateHandler(c)
+	})
+	app.PUT("/zones/:domain/record/create", func(c echo.Context) error {
+		return ZonePutHandler(c)
+	})
+	app.GET("/zones/:domain/create", func(c echo.Context) error {
+		return ZoneCreateHandler(c)
 	})
 
 	app.Start(":8088")

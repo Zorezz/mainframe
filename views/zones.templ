@@ -13,6 +13,8 @@ templ ZonesView(domains handlers.Zones) {
                 <a href={ templ.SafeURL("/zones/" + zone.Name) }>{ zone.Name }</a>
                 <br>
             }
+            <input type="text" id="createZone" name="name"/>
+            <button onClick="ZoneCreate()">Add</button>
         </ul>
     }
 }
@@ -36,13 +38,17 @@ templ ZoneView(records handlers.Zone, domain string) {
                                     <th>{record.Name}</th>
                                     <th>{content.Content}</th>
                                     <th>{strconv.Itoa(record.TTL)}</th>
-                                    <th><button hx-get={ "/zones/" + domain + "/" + strconv.Itoa(i) + "/edit" }/></th>
+                                    <th><button hx-get={ "/zones/" + domain + "/" + strconv.Itoa(i) + "/edit" }>Edit</button></th>
                                 </tr>
                             </table>
                         }
                     }
-                        <table>
-                            <button hx-get={ "/zones/" + domain + "/create" }>Add</button>
+                        <table hx-target="this" hx-swap="outerHTML">
+                            <tr>
+                                <th>
+                                    <button hx-get={ "/zones/" + domain + "/record" + "/create" }>Add</button>
+                                </th>
+                            </tr>
                         </table>
             </table>
         </div>
@@ -80,4 +86,43 @@ templ ZoneEdit(records handlers.Zone , id int, domain string) {
     </form>
 }
 
-
+templ RecordCreate(domain string) {
+    <table>
+        <tr>
+            <th>Type</th>
+            <th>Name</th>
+            <th>Value</th>
+            <th>TTL</th>
+        </tr>
+        <tr>
+            <form id="CreateRecord">
+                <th>
+                    <select name="type">
+                        <option value="A">A</option>
+                        <option value="AAAA">AAAA</option>
+                        <option value="CNAME">CNAME</option>
+                        <option value="MX">MX</option>
+                        <option value="NS">NS</option>
+                        <option value="SOA">SOA</option>
+                        <option value="TXT">TXT</option>
+                    </select>
+                </th>
+                <th>
+                    <input type="text" name="name" value={ domain }>
+                </th>
+                <th>
+                    <input type="text" name="content">
+                </th>
+                <th>
+                    <input type="text" name="TTL" value="3600">
+                </th>
+                <th>
+                    <button form="CreateRecord" hx-put={ "/zones/" + domain + "/record/create" } hx-include="closest tr">Submit</button>
+                </th>
+                <th>
+                    <button onClick="window.location.reload()">Cancel</button>
+                </th>
+            </form>
+        </tr>
+    </table>
+}

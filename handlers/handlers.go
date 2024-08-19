@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -36,6 +37,13 @@ type Zone struct {
 	SoaEdit         string `json:"soa_edit"`
 	SoaEditAPI      string `json:"soa_edit_api"`
 	URL             string `json:"url"`
+}
+
+type CreateZone struct {
+	Name        string   `json:"name"`
+	Kind        string   `json:"kind"`
+	Masters     []any    `json:"masters"`
+	Nameservers []string `json:"nameservers"`
 }
 
 type Zones []struct {
@@ -111,4 +119,34 @@ func GetZone(domain string) Zone {
 	}
 
 	return result
+}
+
+func CreateZoneFunc(domain string) {
+	var URL string = "http://localhost:8081/api/v1/servers/localhost/zones/" + domain
+
+	nameServers := []string{"ns1.dnson.net", "ns2.dnson.net", "ns3.dns-server.se"}
+
+	zoneCreate := CreateZone{
+		Name:        domain,
+		Kind:        "Native",
+		Nameservers: nameServers,
+	}
+
+	contentJson, err := json.Marshal(zoneCreate)
+	if err != nil {
+		fmt.Println("Failed to Marshal JSON")
+	}
+
+	client := &http.Client{}
+	req, _ := http.NewRequest("POST", URL, bytes.NewBuffer(contentJson))
+	fmt.Printf("%s\n", contentJson)
+	req.Header.Set("X-API-Key", KEY)
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer resp.Body.Close()
+	fmt.Println("response Status: ", resp.Status)
+	fmt.Println("response Header: ", resp.Header)
 }
